@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESC}}">
+<meta name="theme-color" content="#002462">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{DESC}}">
+<meta property="og:image" content="{{PUBLIC_URL}}/static/logo.png">
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="apple-touch-icon" href="/static/favicon.png">
+<link rel="alternate" hreflang="en" href="{{PUBLIC_URL}}/work-with-us">
+<link rel="alternate" hreflang="pt" href="{{PUBLIC_URL}}/trabalhe-conosco">
+<link rel="alternate" hreflang="es" href="{{PUBLIC_URL}}/trabaja-con-nosotros">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '{{PIXEL_ID}}');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id={{PIXEL_ID}}&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<style>
+:root{
+  --navy-1:#002462;--navy-2:#001437;--navy-3:#000611;
+  --rose-1:#fecada;--rose-2:#e6b3c3;--rose-3:#d3a1b0;--rose-4:#ad7d8c;
+  --text:#f7eef2;--muted:rgba(254,202,218,.66);
+  --line:rgba(254,202,218,.2);--line-strong:rgba(254,202,218,.42);
+  --card:rgba(255,255,255,.045);--field:rgba(0,6,17,.42);
+  --err:#ff8fa8;--ok:#7be3a6;
+  --radius:16px;--ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100dvh;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);
+  background:var(--navy-2);overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+}
+.bg{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,var(--navy-1) 0%,var(--navy-2) 48%,var(--navy-3) 100%);overflow:hidden}
+.bg i{position:absolute;border-radius:50%;opacity:.6}
+.bg i:nth-child(1){width:60vmax;height:60vmax;right:-22vmax;top:-24vmax;background:radial-gradient(circle,rgba(254,202,218,.34),rgba(254,202,218,.08) 40%,transparent 70%)}
+.bg i:nth-child(2){width:56vmax;height:56vmax;left:-20vmax;bottom:-18vmax;background:radial-gradient(circle,rgba(0,60,170,.6),rgba(0,60,170,.15) 40%,transparent 70%)}
+@media(min-width:700px){.bg i{animation:drift 14s var(--ease) infinite alternate}.bg i:nth-child(2){animation-delay:-7s}}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-4vmax,4vmax,0) scale(1.08)}}
+
+.wrap{max-width:560px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 0 18px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.brand img{width:52px;height:52px;border-radius:14px;box-shadow:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.5),0 0 28px rgba(254,202,218,.18)}
+.brand b{font-family:"Playfair Display",Georgia,serif;font-weight:600;font-size:18px;letter-spacing:.02em;background:linear-gradient(180deg,var(--rose-1),var(--rose-3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font:500 10px/1.2 Inter,sans-serif;letter-spacing:.32em;color:var(--muted);margin-top:3px}
+
+.hero{text-align:center;padding:6px 0 22px}
+.hero h1{font-family:"Playfair Display",Georgia,serif;font-weight:600;font-size:clamp(30px,8vw,40px);line-height:1.1;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 0%,var(--rose-1) 55%,var(--rose-3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(254,202,218,.15)}
+.hero p{margin-top:10px;color:var(--muted);font-size:15px;line-height:1.5;max-width:420px;margin-inline:auto}
+
+.card{
+  position:relative;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 18px 18px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.card::before{content:"";position:absolute;inset:-1px;border-radius:25px;padding:1px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(254,202,218,.55),rgba(254,202,218,0) 40%,rgba(254,202,218,0) 65%,rgba(254,202,218,.25));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@media(min-width:480px){.card{padding:28px 28px 24px}}
+
+.progress{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.progress span{white-space:nowrap}
+.progress b{color:var(--rose-1);text-align:right}
+.bar{height:5px;border-radius:999px;background:rgba(254,202,218,.12);overflow:hidden;margin-bottom:22px}
+.bar i{display:block;height:100%;width:33.33%;border-radius:999px;background:linear-gradient(90deg,var(--rose-3),var(--rose-1));box-shadow:0 0 14px rgba(254,202,218,.55);transition:width .45s var(--ease)}
+
+.step{display:none}
+.step.on{display:block;animation:in .32s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.step h2{font-family:"Playfair Display",Georgia,serif;font-weight:600;font-size:22px;color:var(--rose-1);margin-bottom:16px}
+
+.f{margin-bottom:16px}
+.f label,.f .q{display:block;font-weight:600;font-size:14.5px;margin-bottom:8px;color:var(--text)}
+.f label span,.f .q span{color:var(--muted);font-weight:500}
+.in{
+  width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;outline:none;transition:border-color .2s,box-shadow .25s,background .2s;-webkit-appearance:none;appearance:none;
+}
+.in::placeholder{color:rgba(247,238,242,.35)}
+.in:hover{border-color:var(--line-strong)}
+.in:focus{border-color:var(--rose-1);background:rgba(0,6,17,.55);box-shadow:0 0 0 4px rgba(254,202,218,.14),0 0 24px rgba(254,202,218,.18)}
+.in.bad{border-color:var(--err);box-shadow:0 0 0 4px rgba(255,143,168,.14)}
+.in:-webkit-autofill,.in:-webkit-autofill:hover,.in:-webkit-autofill:focus{-webkit-text-fill-color:var(--text);caret-color:var(--text);-webkit-box-shadow:0 0 0 1000px #05112e inset;transition:background-color 9999s}
+.pre{position:relative}
+.pre .in{padding-left:38px}
+.pre em{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--muted);font-size:16px;pointer-events:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:380px){.row2{grid-template-columns:1fr}}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.c3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:340px){.opts.c3{grid-template-columns:1fr}}
+.opt{position:relative;min-width:0}
+.opt input{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.opt label{
+  display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 14px;text-align:center;
+  font-weight:600;font-size:14.5px;line-height:1.25;color:var(--text);cursor:pointer;user-select:none;overflow-wrap:break-word;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;
+  transition:transform .18s var(--ease),border-color .2s,background .2s,box-shadow .25s;
+}
+.opt label::before{content:"";width:18px;height:18px;flex:0 0 18px;border-radius:50%;border:2px solid var(--line-strong);transition:.2s;background:transparent}
+.opt label:hover{border-color:var(--line-strong);background:rgba(254,202,218,.07);transform:translateY(-1px)}
+.opt input:focus-visible+label{outline:3px solid rgba(254,202,218,.6);outline-offset:2px}
+.opt input:checked+label{
+  border-color:var(--rose-1);color:#fff;
+  background:linear-gradient(135deg,rgba(254,202,218,.24),rgba(173,125,140,.22));
+  box-shadow:inset 0 0 0 1px rgba(254,202,218,.55),0 8px 26px rgba(254,202,218,.18)
+}
+.opt input:checked+label::before{border-color:var(--rose-1);background:radial-gradient(circle,#1d0a13 0 38%,var(--rose-1) 42%)}
+.opts.bad .opt label,.days.bad .opt label{border-color:rgba(255,143,168,.6)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.days .opt label{min-height:46px;padding:10px 2px;font-size:13.5px;border-radius:12px}
+.days .opt label::before{display:none}
+.hours{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tl{display:block}
+.tl span{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-bottom:6px}
+select.in:invalid,select.in:has(option:checked[value=""]){color:rgba(247,238,242,.45)}
+select.in{min-height:52px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23fecada' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+select.in option{color:#111;background:#fff}
+.hint{margin-top:8px;font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"🕘"}
+
+.msg{display:none;margin-top:7px;font-size:13px;color:var(--err);font-weight:500}
+.msg.on{display:flex;gap:6px;align-items:center}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+.nav{display:flex;gap:10px;margin-top:22px}
+.btn{
+  position:relative;overflow:hidden;flex:1;font:700 16px Inter,sans-serif;letter-spacing:.01em;border:0;border-radius:999px;padding:16px 22px;cursor:pointer;
+  color:#1d0a13;background:linear-gradient(135deg,var(--rose-1) 0%,var(--rose-2) 45%,#c08f9e 100%);
+  box-shadow:0 10px 30px rgba(254,202,218,.28),inset 0 1px 0 rgba(255,255,255,.55);
+  transition:transform .18s var(--ease),box-shadow .25s,filter .2s;-webkit-tap-highlight-color:transparent;
+}
+.btn::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);transition:left .55s var(--ease)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(254,202,218,.4),inset 0 1px 0 rgba(255,255,255,.6);filter:brightness(1.04)}
+.btn:hover::after{left:130%}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn:disabled{opacity:.7;cursor:progress;transform:none}
+.btn.ghost{flex:0 0 auto;color:var(--rose-1);background:rgba(254,202,218,.06);border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{background:rgba(254,202,218,.12);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn.ghost::after{display:none}
+.spin{display:none;width:18px;height:18px;border:2.5px solid rgba(29,10,19,.25);border-top-color:#1d0a13;border-radius:50%;animation:rot .7s linear infinite;vertical-align:-4px;margin-right:8px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.btn.busy .spin{display:inline-block}
+
+.privacy{margin-top:16px;text-align:center;font-size:12.5px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#2a0f1a;color:#fff;border:1px solid rgba(255,143,168,.5);padding:12px 18px;border-radius:14px;font-size:14px;font-weight:500;box-shadow:0 12px 40px rgba(0,0,0,.5);transition:.3s var(--ease);max-width:calc(100% - 32px);text-align:center;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.done{display:none;text-align:center;padding:14px 0 6px}
+.done.on{display:block;animation:in .4s var(--ease)}
+.check{position:relative;width:120px;height:120px;margin:6px auto 22px;border-radius:30px;box-shadow:0 0 0 1px var(--line-strong),0 20px 50px rgba(0,0,0,.5),0 0 60px rgba(254,202,218,.35);animation:pulse 2.6s ease-in-out infinite}
+.check img{width:100%;height:100%;border-radius:30px;display:block}
+.check i{position:absolute;right:-10px;bottom:-10px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--rose-1),var(--rose-3));box-shadow:0 0 0 4px var(--navy-2),0 8px 20px rgba(254,202,218,.4);animation:pop .5s .2s var(--ease) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes pulse{50%{box-shadow:0 0 0 1px var(--line-strong),0 20px 50px rgba(0,0,0,.5),0 0 90px rgba(254,202,218,.55)}}
+.check svg{width:26px;height:26px;stroke:#1d0a13;stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .6s .5s var(--ease) forwards}
+.contact{margin-top:18px!important;font-size:13.5px!important}
+.contact a{color:var(--rose-1);text-decoration:none;border-bottom:1px solid rgba(254,202,218,.35)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done h2{font-family:"Playfair Display",Georgia,serif;font-size:28px;font-weight:600;color:var(--rose-1);margin-bottom:10px}
+.done p{color:var(--muted);font-size:15.5px;line-height:1.55;max-width:400px;margin:0 auto}
+.foot{text-align:center;margin-top:26px;font-size:12px;color:rgba(254,202,218,.4);letter-spacing:.1em}
+.foot a{color:rgba(254,202,218,.55);text-decoration:none;letter-spacing:0}
+.foot a:hover{color:var(--rose-1)}
+.foot .alt a{margin:0 5px;border-bottom:1px solid rgba(254,202,218,.25)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.check svg{stroke-dashoffset:0}.check i{transform:none}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i></div>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="/"><img src="/static/logo.png" alt="CM Maids" width="52" height="52"><span><b>CM Maids</b><small data-i18n="tag"></small></span></a>
+  </header>
+
+  <section class="hero">
+    <h1 data-i18n="title"></h1>
+    <p data-i18n="subtitle"></p>
+  </section>
+
+  <main class="card">
+    <form id="form" novalidate autocomplete="on">
+      <div class="progress"><span id="stepLabel"></span><b id="stepName"></b></div>
+      <div class="bar"><i id="barFill"></i></div>
+
+      <!-- 1 -->
+      <section class="step on" data-step="1">
+        <h2 data-i18n="s1"></h2>
+        <div class="f"><label for="name" data-i18n="name"></label>
+          <input class="in" id="name" name="name" type="text" autocomplete="name" required maxlength="100" data-i18n-ph="name_ph">
+          <div class="msg"></div></div>
+        <div class="f"><label for="phone" data-i18n="phone"></label>
+          <input class="in" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="25" placeholder="(000) 000-0000">
+          <div class="msg"></div></div>
+        <div class="f"><label for="email"><span data-i18n="email"></span></label>
+          <input class="in" id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="you@email.com">
+          <div class="msg"></div></div>
+        <div class="row2">
+          <div class="f"><label for="city" data-i18n="city"></label>
+            <input class="in" id="city" name="city" type="text" autocomplete="address-level2" required maxlength="100" data-i18n-ph="city_ph">
+            <div class="msg"></div></div>
+          <div class="f"><label for="zip"><span data-i18n="zip"></span></label>
+            <input class="in" id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]*" placeholder="00000">
+            <div class="msg"></div></div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="step" data-step="2">
+        <h2 data-i18n="s2"></h2>
+        <div class="f"><div class="q" data-i18n="experience"></div>
+          <div class="opts" role="radiogroup">
+            <div class="opt"><input type="radio" name="experience" value="none" id="exp0"><label for="exp0" data-i18n="exp_none"></label></div>
+            <div class="opt"><input type="radio" name="experience" value="lt1" id="exp1"><label for="exp1" data-i18n="exp_lt1"></label></div>
+            <div class="opt"><input type="radio" name="experience" value="1to3" id="exp2"><label for="exp2" data-i18n="exp_1to3"></label></div>
+            <div class="opt"><input type="radio" name="experience" value="gt3" id="exp3"><label for="exp3" data-i18n="exp_gt3"></label></div>
+          </div><div class="msg"></div></div>
+        <div class="f"><div class="q" data-i18n="has_car"></div>
+          <div class="opts" role="radiogroup">
+            <div class="opt"><input type="radio" name="has_car" value="yes" id="car1"><label for="car1" data-i18n="yes"></label></div>
+            <div class="opt"><input type="radio" name="has_car" value="no" id="car0"><label for="car0" data-i18n="no"></label></div>
+          </div><div class="msg"></div></div>
+        <div class="f"><div class="q" data-i18n="supplies"></div>
+          <div class="opts" role="radiogroup">
+            <div class="opt"><input type="radio" name="supplies" value="yes" id="sup1"><label for="sup1" data-i18n="yes"></label></div>
+            <div class="opt"><input type="radio" name="supplies" value="no" id="sup0"><label for="sup0" data-i18n="no"></label></div>
+          </div><div class="msg"></div></div>
+        <div class="f"><div class="q" data-i18n="time_in_us"></div>
+          <div class="opts" role="radiogroup">
+            <div class="opt"><input type="radio" name="time_in_us" value="lt6m" id="tm0"><label for="tm0" data-i18n="tm_lt6m"></label></div>
+            <div class="opt"><input type="radio" name="time_in_us" value="6to12m" id="tm1"><label for="tm1" data-i18n="tm_6to12m"></label></div>
+            <div class="opt"><input type="radio" name="time_in_us" value="1to3y" id="tm2"><label for="tm2" data-i18n="tm_1to3y"></label></div>
+            <div class="opt"><input type="radio" name="time_in_us" value="gt3y" id="tm3"><label for="tm3" data-i18n="tm_gt3y"></label></div>
+          </div><div class="msg"></div></div>
+      </section>
+
+      <!-- 3 -->
+      <section class="step" data-step="3">
+        <h2 data-i18n="s3"></h2>
+        <div class="f"><div class="q" data-i18n="days"></div>
+          <div class="days" id="days" role="group">
+            <div class="opt"><input type="checkbox" name="days" value="mon" id="d1"><label for="d1" data-i18n="d_mon"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="tue" id="d2"><label for="d2" data-i18n="d_tue"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="wed" id="d3"><label for="d3" data-i18n="d_wed"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="thu" id="d4"><label for="d4" data-i18n="d_thu"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="fri" id="d5"><label for="d5" data-i18n="d_fri"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="sat" id="d6"><label for="d6" data-i18n="d_sat"></label></div>
+            <div class="opt"><input type="checkbox" name="days" value="sun" id="d7"><label for="d7" data-i18n="d_sun"></label></div>
+          </div><div class="msg"></div></div>
+        <div class="f"><div class="q" data-i18n="hours"></div>
+          <div class="hours">
+            <label class="tl" for="hours_from"><span data-i18n="from"></span><select class="in" id="hours_from" name="hours_from" required></select></label>
+            <label class="tl" for="hours_to"><span data-i18n="to"></span><select class="in" id="hours_to" name="hours_to" required></select></label>
+          </div>
+          <div class="hint" data-i18n="shift"></div><div class="msg"></div></div>
+        <div class="f"><div class="q" data-i18n="document"></div>
+          <div class="opts c3" role="radiogroup">
+            <div class="opt"><input type="radio" name="document" value="ssn" id="doc1"><label for="doc1" data-i18n="doc_ssn"></label></div>
+            <div class="opt"><input type="radio" name="document" value="itin" id="doc2"><label for="doc2" data-i18n="doc_itin"></label></div>
+            <div class="opt"><input type="radio" name="document" value="none" id="doc0"><label for="doc0" data-i18n="doc_none"></label></div>
+          </div><div class="msg"></div></div>
+        <div class="f"><label for="instagram"><span data-i18n="instagram"></span></label>
+          <div class="pre"><em>@</em><input class="in" id="instagram" name="instagram" type="text" autocomplete="off" autocapitalize="none" maxlength="60" data-i18n-ph="ig_ph"></div></div>
+        <div class="f"><label for="facebook"><span data-i18n="facebook"></span></label>
+          <input class="in" id="facebook" name="facebook" type="text" autocomplete="off" autocapitalize="none" maxlength="200" data-i18n-ph="fb_ph"></div>
+        <div style="position:absolute;left:-9999px" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
+      </section>
+
+      <div class="nav">
+        <button type="button" class="btn ghost" id="back" data-i18n="back"></button>
+        <button type="button" class="btn" id="next"><span class="spin"></span><span id="nextText"></span></button>
+      </div>
+      <div class="privacy">🔒 <span data-i18n="privacy"></span></div>
+    </form>
+
+    <div class="done" id="done">
+      <div class="check"><img src="/static/logo.png" alt="CM Maids"><i><svg viewBox="0 0 52 52"><path d="M12 27l10 10 18-20"/></svg></i></div>
+      <h2 data-i18n="done_title"></h2>
+      <p id="doneText"></p>
+      <p class="contact"><span data-i18n="questions"></span> <a href="mailto:contact@cmmaids.com">contact@cmmaids.com</a></p>
+    </div>
+  </main>
+  <p class="foot">© CM MAIDS · <a href="mailto:contact@cmmaids.com">contact@cmmaids.com</a>
+    <span class="alt" id="alt"></span></p>
+</div>
+<div class="toast" id="toast" role="alert"></div>
+
+<script>
+const LANG = document.documentElement.lang;
+const PIXEL_ID = '{{PIXEL_ID}}';
+const I18N = {
+ en:{tag:"WORK WITH US",title:"Work with us",subtitle:"We're hiring cleaning helpers for the CM Maids team. It takes 2 minutes.",
+  step:"Step {n} of 3",s1:"About you",s2:"Your experience",s3:"Availability & documents",
+  name:"Full name",name_ph:"Your full name",phone:"Phone number",email:"Email (optional)",city:"City where you live",city_ph:"City",zip:"ZIP code (optional)",
+  experience:"How much cleaning experience do you have?",exp_none:"No experience",exp_lt1:"Less than 1 year",exp_1to3:"1 to 3 years",exp_gt3:"More than 3 years",
+  has_car:"Do you have a car?",supplies:"Do you have your own cleaning supplies?",yes:"Yes",no:"No",
+  time_in_us:"How long have you been in the US?",tm_lt6m:"Less than 6 months",tm_6to12m:"6 months to 1 year",tm_1to3y:"1 to 3 years",tm_gt3y:"More than 3 years",
+  days:"Which days can you work?",d_mon:"Mon",d_tue:"Tue",d_wed:"Wed",d_thu:"Thu",d_fri:"Fri",d_sat:"Sat",d_sun:"Sun",
+  hours:"What hours are you available?",from:"From",to:"To",shift:"Our shift is 8:30am to 4pm.",e_days:"Pick at least one day",e_hours:"End time must be after start time",questions:"Questions?",
+  document:"Do you have an SSN (Social Security) or ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Neither",instagram:"Instagram (optional)",ig_ph:"yourprofile",facebook:"Facebook (optional)",fb_ph:"Profile link or name",
+  next:"Continue",back:"Back",send:"Send application",sending:"Sending…",privacy:"Your information is only used for this hiring process.",
+  e_req:"Please fill in this field",e_opt:"Please choose an option",e_phone:"Enter a valid phone number",e_email:"Enter a valid email",e_zip:"ZIP must be 5 digits",
+  e_net:"Something went wrong. Please try again.",e_many:"Too many attempts. Please try again later.",
+  done_title:"Application received!",done_text:"Thank you, {name}! Our team will review your profile and reach out by call or text if it's a match."},
+ pt:{tag:"TRABALHE CONOSCO",title:"Trabalhe conosco",subtitle:"Estamos contratando helpers de limpeza para o time CM Maids. Leva 2 minutos.",
+  step:"Etapa {n} de 3",s1:"Sobre você",s2:"Sua experiência",s3:"Disponibilidade e documentos",
+  name:"Nome completo",name_ph:"Seu nome completo",phone:"Número do WhatsApp",email:"E-mail (opcional)",city:"Cidade onde mora",city_ph:"Cidade",zip:"ZIP code (opcional)",
+  experience:"Quanto tempo de experiência com limpeza você tem?",exp_none:"Nenhuma",exp_lt1:"Menos de 1 ano",exp_1to3:"1 a 3 anos",exp_gt3:"Mais de 3 anos",
+  has_car:"Você tem carro?",supplies:"Você tem material de limpeza próprio?",yes:"Sim",no:"Não",
+  time_in_us:"Há quanto tempo você está nos EUA?",tm_lt6m:"Menos de 6 meses",tm_6to12m:"De 6 meses a 1 ano",tm_1to3y:"1 a 3 anos",tm_gt3y:"Mais de 3 anos",
+  days:"Quais dias você pode trabalhar?",d_mon:"Seg",d_tue:"Ter",d_wed:"Qua",d_thu:"Qui",d_fri:"Sex",d_sat:"Sáb",d_sun:"Dom",
+  hours:"Qual horário você tem disponível?",from:"De",to:"Até",shift:"Nosso turno é das 8:30am às 4pm.",e_days:"Marque pelo menos um dia",e_hours:"O horário final precisa ser depois do inicial",questions:"Dúvidas?",
+  document:"Você possui SSN (Social Security) ou ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Nenhum",instagram:"Instagram (opcional)",ig_ph:"seuperfil",facebook:"Facebook (opcional)",fb_ph:"Link ou nome do perfil",
+  next:"Continuar",back:"Voltar",send:"Enviar candidatura",sending:"Enviando…",privacy:"Suas informações são usadas só para este processo seletivo.",
+  e_req:"Preencha este campo",e_opt:"Escolha uma opção",e_phone:"Digite um número válido",e_email:"Digite um e-mail válido",e_zip:"O ZIP precisa ter 5 dígitos",
+  e_net:"Algo deu errado. Tente novamente.",e_many:"Muitas tentativas. Tente de novo mais tarde.",
+  done_title:"Candidatura recebida!",done_text:"Obrigado, {name}! Nossa equipe vai analisar seu perfil e, se ele combinar com a vaga, entra em contato pelo WhatsApp."},
+ es:{tag:"TRABAJA CON NOSOTROS",title:"Trabaja con nosotros",subtitle:"Estamos contratando helpers de limpieza para el equipo CM Maids. Toma 2 minutos.",
+  step:"Paso {n} de 3",s1:"Sobre ti",s2:"Tu experiencia",s3:"Disponibilidad y documentos",
+  name:"Nombre completo",name_ph:"Tu nombre completo",phone:"Número de WhatsApp",email:"Correo electrónico (opcional)",city:"Ciudad donde vives",city_ph:"Ciudad",zip:"Código ZIP (opcional)",
+  experience:"¿Cuánta experiencia en limpieza tienes?",exp_none:"Ninguna",exp_lt1:"Menos de 1 año",exp_1to3:"1 a 3 años",exp_gt3:"Más de 3 años",
+  has_car:"¿Tienes carro?",supplies:"¿Tienes tus propios materiales de limpieza?",yes:"Sí",no:"No",
+  time_in_us:"¿Cuánto tiempo llevas en Estados Unidos?",tm_lt6m:"Menos de 6 meses",tm_6to12m:"De 6 meses a 1 año",tm_1to3y:"1 a 3 años",tm_gt3y:"Más de 3 años",
+  days:"¿Qué días puedes trabajar?",d_mon:"Lun",d_tue:"Mar",d_wed:"Mié",d_thu:"Jue",d_fri:"Vie",d_sat:"Sáb",d_sun:"Dom",
+  hours:"¿En qué horario estás disponible?",from:"De",to:"Hasta",shift:"Nuestro turno es de 8:30am a 4pm.",e_days:"Marca al menos un día",e_hours:"La hora final debe ser después de la inicial",questions:"¿Dudas?",
+  document:"¿Tienes SSN (Seguro Social) o ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Ninguno",instagram:"Instagram (opcional)",ig_ph:"tuperfil",facebook:"Facebook (opcional)",fb_ph:"Enlace o nombre del perfil",
+  next:"Continuar",back:"Atrás",send:"Enviar solicitud",sending:"Enviando…",privacy:"Tu información solo se usa para este proceso de selección.",
+  e_req:"Completa este campo",e_opt:"Elige una opción",e_phone:"Ingresa un número válido",e_email:"Ingresa un correo válido",e_zip:"El ZIP debe tener 5 dígitos",
+  e_net:"Algo salió mal. Inténtalo de nuevo.",e_many:"Demasiados intentos. Inténtalo más tarde.",
+  done_title:"¡Solicitud recibida!",done_text:"¡Gracias, {name}! Nuestro equipo revisará tu perfil y, si encaja con la vacante, te contactará por WhatsApp."}
+};
+const T = I18N[LANG] || I18N.en;
+const t = (k, v={}) => (T[k] ?? k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '');
+document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+const ALT = {en: ['/work-with-us', 'English'], pt: ['/trabalhe-conosco', 'Português'], es: ['/trabaja-con-nosotros', 'Español']};
+document.querySelector('#alt').innerHTML = '<br>' + Object.entries(ALT).filter(([k]) => k !== LANG).map(([k, [h, n]]) => `<a href="${h}" hreflang="${k}">${n}</a>`).join('');
+
+const $ = s => document.querySelector(s);
+document.querySelectorAll('.f .q').forEach((q, i) => { q.id = 'q' + i; const g = q.nextElementSibling; if (g) g.setAttribute('aria-labelledby', q.id); });
+// horários de 30 em 30 min, sempre em AM/PM (valor interno 24h "HH:MM")
+const ampm = v => { const [h, m] = v.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+for (const [id, def] of [['hours_from', '08:30'], ['hours_to', '16:00']]) {
+  const sel = document.getElementById(id);
+  sel.add(new Option(t(def === '08:30' ? 'from' : 'to') + '…', '', true, true));
+  sel.options[0].disabled = true;
+  for (let t = 5 * 60; t <= 22 * 60; t += 30) {
+    const v = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+    sel.add(new Option(ampm(v), v));
+  }
+}
+const form = $('#form'), steps = [...document.querySelectorAll('.step')], names = ['s1','s2','s3'];
+let cur = 0;
+const KEY = 'cmmaids-apply';
+
+function show(i){
+  cur = i;
+  steps.forEach((s, k) => s.classList.toggle('on', k === i));
+  $('#stepLabel').textContent = t('step', {n: i + 1});
+  $('#stepName').textContent = t(names[i]);
+  $('#barFill').style.width = ((i + 1) / steps.length * 100) + '%';
+  $('#back').style.display = i ? '' : 'none';
+  $('#nextText').textContent = t(i === steps.length - 1 ? 'send' : 'next');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setErr(field, msg){
+  const box = field.closest('.f'), m = box.querySelector('.msg');
+  field.classList.toggle('bad', !!msg);
+  if (!m) return;
+  m.textContent = msg ? '⚠ ' + msg : '';
+  m.classList.toggle('on', !!msg);
+  if (msg){ box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+}
+
+function validate(i){
+  let first = null;
+  const step = steps[i];
+  step.querySelectorAll('.in:not(select)').forEach(inp => {
+    const v = inp.value.trim(); let msg = '';
+    if (inp.required && !v) msg = t('e_req');
+    else if (inp.name === 'phone' && v.replace(/\D/g, '').length < 7) msg = t('e_phone');
+    else if (inp.name === 'email' && v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) msg = t('e_email');
+    else if (inp.name === 'zip' && v && !/^\d{5}$/.test(v)) msg = t('e_zip');
+    setErr(inp, msg); if (msg && !first) first = inp;
+  });
+  step.querySelectorAll('.opts, .days').forEach(g => {
+    const msg = g.querySelector('input:checked') ? '' : t(g.classList.contains('days') ? 'e_days' : 'e_opt');
+    setErr(g, msg); if (msg && !first) first = g;
+  });
+  const hf = step.querySelector('#hours_from'), ht = step.querySelector('#hours_to');
+  if (hf) {
+    const msg = (!hf.value || !ht.value) ? t('e_opt') : hf.value >= ht.value ? t('e_hours') : '';
+    setErr(hf.value ? ht : hf, msg); if (msg && !first) first = hf;
+  }
+  if (first) first.scrollIntoView({behavior: 'smooth', block: 'center'});
+  return !first;
+}
+
+form.addEventListener('input', e => {
+  const f = e.target.closest('.f'); if (f) { const bad = f.querySelector('.bad'); if (bad) setErr(bad, ''); }
+  try { const o = Object.fromEntries(new FormData(form)); o.days = [...form.querySelectorAll('input[name=days]:checked')].map(i => i.value); sessionStorage.setItem(KEY, JSON.stringify(o)); } catch {}
+});
+form.addEventListener('change', e => { if (e.target.type === 'radio' || e.target.type === 'checkbox') form.dispatchEvent(new Event('input')); });
+
+$('#back').onclick = () => show(cur - 1);
+$('#next').onclick = () => { if (!validate(cur)) return; cur < steps.length - 1 ? show(cur + 1) : submit(); };
+form.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT' || e.target.type === 'radio' || e.target.type === 'checkbox') return;
+  e.preventDefault();
+  const ins = [...steps[cur].querySelectorAll('.in')], i = ins.indexOf(e.target);
+  if (i > -1 && i < ins.length - 1) ins[i + 1].focus(); else $('#next').click();
+});
+
+const cookie = n => (document.cookie.match('(?:^|; )' + n + '=([^;]*)') || [])[1] || '';
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 4500); }
+
+async function submit(){
+  const btn = $('#next'); btn.disabled = true; btn.classList.add('busy'); $('#nextText').textContent = t('sending');
+  const p = Object.fromEntries(new FormData(form));
+  p.days = [...form.querySelectorAll('input[name=days]:checked')].map(i => i.value);
+  p.lang = LANG; p.fbp = cookie('_fbp'); p.fbc = cookie('_fbc'); p.query = location.search.slice(1, 300);
+  try {
+    const r = await fetch('/api/apply', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p)});
+    if (r.status === 429) throw new Error('many');
+    if (!r.ok) throw new Error('bad');
+    const res = await r.json();
+    try { sessionStorage.removeItem(KEY); } catch {}
+    form.style.display = 'none';
+    $('#doneText').textContent = t('done_text', {name: p.name.trim().split(/\s+/)[0]});
+    $('#done').classList.add('on');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    purchase(res, p);
+  } catch (e) {
+    toast(t(e.message === 'many' ? 'e_many' : 'e_net'));
+    btn.disabled = false; btn.classList.remove('busy'); $('#nextText').textContent = t('send');
+  }
+}
+
+// Purchase: quem preencheu conta como venda. value = pontuação da candidata; eventID = dedup com a Conversions API.
+function purchase(res, p){
+  if (typeof fbq !== 'function') return;
+  const parts = p.name.trim().split(/\s+/), ph = p.phone.replace(/\D/g, '');
+  fbq('init', PIXEL_ID, {
+    em: p.email || undefined, ph: (ph.length === 10 ? '1' + ph : ph) || undefined, // pixel faz o hash
+    fn: parts[0], ln: parts.length > 1 ? parts[parts.length - 1] : undefined,
+    ct: p.city, zp: p.zip || undefined, country: 'us', external_id: res.event_id
+  });
+  fbq('track', 'Purchase', {
+    value: res.score, currency: 'USD', content_name: 'helper-application', content_category: res.bucket,
+    content_type: 'product', content_ids: ['helper-application'], num_items: 1, lang: LANG
+  }, {eventID: res.event_id});
+}
+
+// restaura o que já foi digitado (troca de app no celular recarrega a página)
+try {
+  const saved = JSON.parse(sessionStorage.getItem(KEY) || '{}');
+  for (const [k, v] of Object.entries(saved)) {
+    if (k === 'website') continue;
+    if (k === 'days') { form.querySelectorAll('input[name=days]').forEach(i => i.checked = v.includes(i.value)); continue; }
+    const el = form.elements[k]; if (el) el.value = v;
+  }
+} catch {}
+show(0);
+</script>
+</body>
+</html>

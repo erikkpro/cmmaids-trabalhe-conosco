@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidatas — CM Maids</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<style>
+:root{--navy:#001437;--navy2:#000611;--rose:#fecada;--rose3:#d3a1b0;--muted:rgba(254,202,218,.6);--line:rgba(254,202,218,.18)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#f7eef2;background:linear-gradient(180deg,#002462,var(--navy) 40%,var(--navy2));min-height:100vh;padding:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px}
+header img{width:44px;height:44px;border-radius:12px;box-shadow:0 0 0 1px var(--line)}
+h1{font-size:20px;font-weight:600;color:var(--rose)}
+h1 small{color:var(--muted);font-weight:500;font-size:13px;margin-left:8px}
+.sp{flex:1}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button,.x{font:600 13px Inter,sans-serif;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:.2s}
+.tabs button:hover,.x:hover{color:var(--rose);border-color:rgba(254,202,218,.45)}
+.tabs button.on{color:#1d0a13;background:linear-gradient(135deg,var(--rose),var(--rose3));border-color:transparent}
+.x{text-decoration:none}
+input.s{font:inherit;color:#fff;background:rgba(0,6,17,.45);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-width:220px;outline:none}
+input.s:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(254,202,218,.15)}
+.legend{font-size:12px;color:var(--muted);margin:0 0 12px}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03)}
+table{border-collapse:collapse;width:100%;min-width:1400px}
+th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(254,202,218,.08);white-space:nowrap}
+th{position:sticky;top:0;background:#0a1e4f;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none}
+th:hover{color:var(--rose)}
+tr:hover td{background:rgba(254,202,218,.04)}
+a{color:var(--rose)}
+.b{display:inline-block;padding:3px 9px;border-radius:999px;font-weight:700;font-size:12px}
+.b.qualificado{background:#16a34a}.b.potencial{background:#d97706}.b.nao_qualificado{background:#dc2626}
+.sc{font-weight:700;color:var(--rose)}
+.y{color:#7be3a6}.n{color:#ff8fa8}
+.del{background:none;border:0;color:rgba(255,143,168,.6);cursor:pointer;font-size:16px}
+.del:hover{color:#ff8fa8}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <img src="/static/logo.png" alt="">
+  <h1>Candidatas <small id="count"></small></h1>
+  <span class="sp"></span>
+  <input class="s" id="q" placeholder="Buscar nome, cidade, telefone…">
+  <a class="x" href="/admin/export.csv">⬇ Exportar CSV</a>
+</header>
+<div class="tabs" id="tabs">
+  <button data-b="" class="on">Todas</button>
+  <button data-b="qualificado">✅ Qualificadas</button>
+  <button data-b="potencial">🟡 Potenciais</button>
+  <button data-b="nao_qualificado">🔴 Não qualificadas</button>
+</div>
+<p class="legend">Pontuação (máx {{MAX}}): experiência 0–3 · carro 3 · disponibilidade 3 (seg–sex cobrindo 8:30–4pm) / parcial 1 · SSN ou ITIN 3 · material 1 · tempo nos EUA 0–3.
+<b>Qualificada</b> = tem SSN/ITIN + carro + disponibilidade total e ≥10 pontos · <b>Não qualificada</b> = sem SSN/ITIN · o resto é <b>Potencial</b>.</p>
+<div class="tw"><table id="tb"><thead><tr>
+  <th data-k="created_at">Data</th><th data-k="bucket">Status</th><th data-k="score">Pts</th><th data-k="name">Nome</th><th>Telefone</th><th data-k="city">Cidade</th>
+  <th data-k="document">SSN/ITIN</th><th data-k="has_car">Carro</th><th data-k="availability">8:30–4pm</th><th>Dias / horário</th><th data-k="experience">Experiência</th><th data-k="supplies">Material</th><th data-k="time_in_us">Tempo EUA</th>
+  <th>Instagram</th><th>Facebook</th><th>E-mail</th><th data-k="lang">Idioma</th><th>Origem</th><th></th>
+</tr></thead><tbody></tbody></table><div class="empty" id="empty" style="display:none">Nenhuma candidata ainda.</div></div>
+<script>
+const DATA = {{DATA}};
+const L = {
+  experience:{none:"Nenhuma",lt1:"< 1 ano","1to3":"1–3 anos",gt3:"> 3 anos"},
+  has_car:{yes:"Sim",no:"Não"}, supplies:{yes:"Sim",no:"Não"},
+  availability:{full:"Total",partial:"Parcial",no:"Não"},
+  document:{ssn:"SSN",itin:"ITIN",none:"Nenhum"},
+  time_in_us:{lt6m:"< 6 meses","6to12m":"6m–1 ano","1to3y":"1–3 anos",gt3y:"> 3 anos"},
+  bucket:{qualificado:"Qualificada",potencial:"Potencial",nao_qualificado:"Não qualif."},
+  lang:{pt:"PT",en:"EN",es:"ES"},
+  days:{mon:"Seg",tue:"Ter",wed:"Qua",thu:"Qui",fri:"Sex",sat:"Sáb",sun:"Dom"}
+};
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yn = v => v === 'yes' ? '<span class="y">Sim</span>' : '<span class="n">Não</span>';
+let bucket = '', q = '', sortK = 'id', sortD = -1;
+function fmtDate(s){ const d = new Date(s); return d.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+const e164 = p => p;
+const days = d => (d || '').split(',').filter(Boolean).map(x => L.days[x] || x).join('/');
+const ampm = v => { if (!v) return ''; const [h, m] = v.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+function render(){
+  const rows = DATA.filter(r => (!bucket || r.bucket === bucket) && (!q || [r.name, r.city, r.phone, r.email, r.instagram].join(' ').toLowerCase().includes(q)))
+    .sort((a, b) => (a[sortK] > b[sortK] ? 1 : a[sortK] < b[sortK] ? -1 : 0) * sortD);
+  document.querySelector('#tb tbody').innerHTML = rows.map(r => `<tr data-id="${r.id}">
+    <td>${fmtDate(r.created_at)}</td><td><span class="b ${r.bucket}">${L.bucket[r.bucket] || r.bucket}</span></td><td class="sc">${r.score}</td>
+    <td><b>${esc(r.name)}</b></td><td><a href="tel:+${r.phone}">+${esc(r.phone)}</a> <a href="https://wa.me/${r.phone}" target="_blank" title="WhatsApp">💬</a></td><td>${esc(r.city)}${r.zip ? ' · ' + esc(r.zip) : ''}</td>
+    <td>${r.document === 'none' ? '<span class="n">Nenhum</span>' : '<span class="y">' + L.document[r.document] + '</span>'}</td><td>${yn(r.has_car)}</td>
+    <td>${r.availability === 'full' ? '<span class="y">Total</span>' : r.availability === 'partial' ? '<span style="color:#fbbf24">Parcial</span>' : '<span class="n">Não</span>'}</td>
+    <td>${esc(days(r.days))} ${ampm(r.hours_from)}–${ampm(r.hours_to)}</td>
+    <td>${L.experience[r.experience] || ''}</td><td>${yn(r.supplies)}</td><td>${L.time_in_us[r.time_in_us] || ''}</td>
+    <td>${r.instagram ? `<a href="https://instagram.com/${encodeURIComponent(r.instagram)}" target="_blank">@${esc(r.instagram)}</a>` : '—'}</td>
+    <td>${r.facebook ? (/^https?:/.test(r.facebook) ? `<a href="${esc(r.facebook)}" target="_blank">perfil</a>` : `<a href="https://www.facebook.com/search/top?q=${encodeURIComponent(r.facebook)}" target="_blank">${esc(r.facebook)}</a>`) : '—'}</td>
+    <td>${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '—'}</td><td>${L.lang[r.lang] || ''}</td><td title="${esc(r.query)}">${esc((r.query || '').slice(0, 30))}</td>
+    <td><button class="del" title="Apagar" data-id="${r.id}">✕</button></td></tr>`).join('');
+  document.querySelector('#count').textContent = rows.length + (rows.length === 1 ? ' candidata' : ' candidatas');
+  document.querySelector('#empty').style.display = rows.length ? 'none' : '';
+}
+document.querySelector('#tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; bucket = b.dataset.b; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); render(); };
+document.querySelector('#q').oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
+document.querySelector('thead').onclick = e => { const th = e.target.closest('th'); if (!th?.dataset.k) return; if (sortK === th.dataset.k) sortD *= -1; else { sortK = th.dataset.k; sortD = 1; } render(); };
+document.querySelector('tbody').onclick = async e => {
+  const b = e.target.closest('.del'); if (!b) return;
+  const r = DATA.find(x => x.id == b.dataset.id);
+  if (!confirm(`Apagar ${r.name}?`)) return;
+  const res = await fetch('/admin/api/applications/' + r.id, {method: 'DELETE'});
+  if (res.ok) { DATA.splice(DATA.indexOf(r), 1); render(); } else alert('Não deu pra apagar.');
+};
+render();
+</script>
+</body>
+</html>
