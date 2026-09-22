@@ -37,6 +37,11 @@ ADMIN_PASS = os.environ.get("ADMIN_PASS", "")
 META_PIXEL_ID = os.environ.get("META_PIXEL_ID", "1656588805885650")
 META_CAPI_TOKEN = os.environ.get("META_CAPI_TOKEN", "")  # opcional: Conversions API (server-side Purchase)
 PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://cmmaids.com").rstrip("/")
+# Plataforma operacional (operacionalcm.com): a candidata cai na aba Candidatas pra a
+# Talita trabalhar. Entra por uma porta estreita — uma função que só sabe inserir
+# candidata — e não pela chave-mestra do banco, que abre os outros apps do Erik.
+PLATAFORMA_URL = os.environ.get("PLATAFORMA_URL", "https://wuvdbripwlkjpopwlzbm.supabase.co/functions/v1/cr-candidata")
+PLATAFORMA_TOKEN = os.environ.get("PLATAFORMA_TOKEN", "")
 
 SLUGS = {"pt": "trabalhe-conosco", "en": "work-with-us", "es": "trabaja-con-nosotros"}
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
@@ -294,6 +299,7 @@ def apply(a: Application, request: Request, bg: BackgroundTasks):
         data["id"] = cur.lastrowid
     bg.add_task(notify_email, data)
     bg.add_task(send_capi, data)
+    bg.add_task(enviar_plataforma, data)
     return {"ok": True, "score": data["score"], "bucket": data["bucket"], "availability": data["availability"], "event_id": data["event_id"], "max": MAX_SCORE}
 
 
@@ -380,6 +386,27 @@ def notify_email(d: dict):
 def _sha(v: str) -> list[str]:
     v = v.strip().lower()
     return [hashlib.sha256(v.encode()).hexdigest()] if v else []
+
+
+def enviar_plataforma(d: dict):
+    """Espelha a candidata na plataforma (operacionalcm.com). Nunca derruba o envio:
+    o SQLite daqui continua sendo a fonte, isto é só a cópia operacional."""
+    if not PLATAFORMA_TOKEN:
+        return
+    linha = {
+        "source_id": d.get("id"), "name": d["name"], "phone": d["phone"], "email": d["email"],
+        "instagram": d["instagram"] or None, "facebook": d["facebook"] or None,
+        "city": d["city"], "zip": d["zip"], "days": d["days"],
+        "hours_from": d["hours_from"], "hours_to": d["hours_to"], "availability": d["availability"],
+        "has_car": d["has_car"], "experience_key": d["experience"], "document": d["document"],
+        "supplies": d["supplies"], "time_in_us": d["time_in_us"],
+        "score": d["score"], "bucket": d["bucket"], "lang": d["lang"], "event_id": d["event_id"],
+        "status": "nova",
+    }
+    try:
+        _post_json(PLATAFORMA_URL, linha, {"x-cm-token": PLATAFORMA_TOKEN})
+    except Exception as e:  # a candidata já está salva aqui; a plataforma reconcilia depois
+        print("plataforma:", e, flush=True)
 
 
 def send_capi(d: dict):
