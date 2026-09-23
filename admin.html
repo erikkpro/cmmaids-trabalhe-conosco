@@ -53,11 +53,11 @@ a{color:var(--rose)}
   <button data-b="potencial">🟡 Potenciais</button>
   <button data-b="nao_qualificado">🔴 Não qualificadas</button>
 </div>
-<p class="legend">Pontuação (máx {{MAX}}): experiência 0–3 · carro 3 · disponibilidade 3 (seg–sex cobrindo 8:30–4pm) / parcial 1 · SSN ou ITIN 3 · material 1 · tempo nos EUA 0–3.
+<p class="legend">Pontuação (máx {{MAX}}): experiência 0–3 · carro 3 · disponibilidade 3 (seg–sex cobrindo 8:30–4pm) / parcial 1 · SSN ou ITIN 3 · carteira de motorista 1 · material 1.
 <b>Qualificada</b> = tem SSN/ITIN + carro + disponibilidade total e ≥10 pontos · <b>Não qualificada</b> = sem SSN/ITIN · o resto é <b>Potencial</b>.</p>
 <div class="tw"><table id="tb"><thead><tr>
   <th data-k="created_at">Data</th><th data-k="bucket">Status</th><th data-k="score">Pts</th><th data-k="name">Nome</th><th>Telefone</th><th data-k="city">Cidade</th>
-  <th data-k="document">SSN/ITIN</th><th data-k="has_car">Carro</th><th data-k="availability">8:30–4pm</th><th>Dias / horário</th><th data-k="experience">Experiência</th><th data-k="supplies">Material</th><th data-k="time_in_us">Tempo EUA</th>
+  <th data-k="document">SSN/ITIN</th><th data-k="has_car">Carro</th><th data-k="license">Habilit.</th><th data-k="availability">8:30–4pm</th><th>Dias / horário</th><th data-k="experience">Experiência</th><th data-k="supplies">Material</th>
   <th>Instagram</th><th>Facebook</th><th>E-mail</th><th data-k="lang">Idioma</th><th>Origem</th><th></th>
 </tr></thead><tbody></tbody></table><div class="empty" id="empty" style="display:none">Nenhuma candidata ainda.</div></div>
 <script>
@@ -67,10 +67,9 @@ const L = {
   has_car:{yes:"Sim",no:"Não"}, supplies:{yes:"Sim",no:"Não"},
   availability:{full:"Total",partial:"Parcial",no:"Não"},
   document:{ssn:"SSN",itin:"ITIN",none:"Nenhum"},
-  time_in_us:{lt6m:"< 6 meses","6to12m":"6m–1 ano","1to3y":"1–3 anos",gt3y:"> 3 anos"},
   bucket:{qualificado:"Qualificada",potencial:"Potencial",nao_qualificado:"Não qualif."},
   lang:{pt:"PT",en:"EN",es:"ES"},
-  days:{mon:"Seg",tue:"Ter",wed:"Qua",thu:"Qui",fri:"Sex",sat:"Sáb",sun:"Dom"}
+  days:{sun:"Dom",mon:"Seg",tue:"Ter",wed:"Qua",thu:"Qui",fri:"Sex",sat:"Sáb"}
 };
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const yn = v => v === 'yes' ? '<span class="y">Sim</span>' : '<span class="n">Não</span>';
@@ -85,10 +84,10 @@ function render(){
   document.querySelector('#tb tbody').innerHTML = rows.map(r => `<tr data-id="${r.id}">
     <td>${fmtDate(r.created_at)}</td><td><span class="b ${r.bucket}">${L.bucket[r.bucket] || r.bucket}</span></td><td class="sc">${r.score}</td>
     <td><b>${esc(r.name)}</b></td><td><a href="tel:+${r.phone}">+${esc(r.phone)}</a> <a href="https://wa.me/${r.phone}" target="_blank" title="WhatsApp">💬</a></td><td>${esc(r.city)}${r.zip ? ' · ' + esc(r.zip) : ''}</td>
-    <td>${r.document === 'none' ? '<span class="n">Nenhum</span>' : '<span class="y">' + L.document[r.document] + '</span>'}</td><td>${yn(r.has_car)}</td>
+    <td>${r.document === 'none' ? '<span class="n">Nenhum</span>' : '<span class="y">' + L.document[r.document] + '</span>'}</td><td>${yn(r.has_car)}</td><td>${r.has_car === 'yes' ? yn(r.license) : '—'}</td>
     <td>${r.availability === 'full' ? '<span class="y">Total</span>' : r.availability === 'partial' ? '<span style="color:#fbbf24">Parcial</span>' : '<span class="n">Não</span>'}</td>
     <td>${esc(days(r.days))} ${ampm(r.hours_from)}–${ampm(r.hours_to)}</td>
-    <td>${L.experience[r.experience] || ''}</td><td>${yn(r.supplies)}</td><td>${L.time_in_us[r.time_in_us] || ''}</td>
+    <td>${L.experience[r.experience] || ''}</td><td>${yn(r.supplies)}</td>
     <td>${r.instagram ? `<a href="https://instagram.com/${encodeURIComponent(r.instagram)}" target="_blank">@${esc(r.instagram)}</a>` : '—'}</td>
     <td>${r.facebook ? (/^https?:/.test(r.facebook) ? `<a href="${esc(r.facebook)}" target="_blank">perfil</a>` : `<a href="https://www.facebook.com/search/top?q=${encodeURIComponent(r.facebook)}" target="_blank">${esc(r.facebook)}</a>`) : '—'}</td>
     <td>${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '—'}</td><td>${L.lang[r.lang] || ''}</td><td title="${esc(r.query)}">${esc((r.query || '').slice(0, 30))}</td>

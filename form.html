@@ -130,6 +130,9 @@ body{
 }
 .opt input:checked+label::before{border-color:var(--rose-1);background:radial-gradient(circle,#1d0a13 0 38%,var(--rose-1) 42%)}
 .opts.bad .opt label,.days.bad .opt label{border-color:rgba(255,143,168,.6)}
+.f[hidden]{display:none}
+.f.reveal{animation:reveal .3s var(--ease)}
+@keyframes reveal{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .days .opt label{min-height:46px;padding:10px 2px;font-size:13.5px;border-radius:12px}
 .days .opt label::before{display:none}
@@ -244,17 +247,15 @@ select.in option{color:#111;background:#fff}
             <div class="opt"><input type="radio" name="has_car" value="yes" id="car1"><label for="car1" data-i18n="yes"></label></div>
             <div class="opt"><input type="radio" name="has_car" value="no" id="car0"><label for="car0" data-i18n="no"></label></div>
           </div><div class="msg"></div></div>
+        <div class="f" id="fLicense" hidden><div class="q" data-i18n="license"></div>
+          <div class="opts" role="radiogroup">
+            <div class="opt"><input type="radio" name="license" value="yes" id="lic1"><label for="lic1" data-i18n="yes"></label></div>
+            <div class="opt"><input type="radio" name="license" value="no" id="lic0"><label for="lic0" data-i18n="no"></label></div>
+          </div><div class="msg"></div></div>
         <div class="f"><div class="q" data-i18n="supplies"></div>
           <div class="opts" role="radiogroup">
             <div class="opt"><input type="radio" name="supplies" value="yes" id="sup1"><label for="sup1" data-i18n="yes"></label></div>
             <div class="opt"><input type="radio" name="supplies" value="no" id="sup0"><label for="sup0" data-i18n="no"></label></div>
-          </div><div class="msg"></div></div>
-        <div class="f"><div class="q" data-i18n="time_in_us"></div>
-          <div class="opts" role="radiogroup">
-            <div class="opt"><input type="radio" name="time_in_us" value="lt6m" id="tm0"><label for="tm0" data-i18n="tm_lt6m"></label></div>
-            <div class="opt"><input type="radio" name="time_in_us" value="6to12m" id="tm1"><label for="tm1" data-i18n="tm_6to12m"></label></div>
-            <div class="opt"><input type="radio" name="time_in_us" value="1to3y" id="tm2"><label for="tm2" data-i18n="tm_1to3y"></label></div>
-            <div class="opt"><input type="radio" name="time_in_us" value="gt3y" id="tm3"><label for="tm3" data-i18n="tm_gt3y"></label></div>
           </div><div class="msg"></div></div>
       </section>
 
@@ -263,13 +264,13 @@ select.in option{color:#111;background:#fff}
         <h2 data-i18n="s3"></h2>
         <div class="f"><div class="q" data-i18n="days"></div>
           <div class="days" id="days" role="group">
+            <div class="opt"><input type="checkbox" name="days" value="sun" id="d0"><label for="d0" data-i18n="d_sun"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="mon" id="d1"><label for="d1" data-i18n="d_mon"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="tue" id="d2"><label for="d2" data-i18n="d_tue"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="wed" id="d3"><label for="d3" data-i18n="d_wed"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="thu" id="d4"><label for="d4" data-i18n="d_thu"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="fri" id="d5"><label for="d5" data-i18n="d_fri"></label></div>
             <div class="opt"><input type="checkbox" name="days" value="sat" id="d6"><label for="d6" data-i18n="d_sat"></label></div>
-            <div class="opt"><input type="checkbox" name="days" value="sun" id="d7"><label for="d7" data-i18n="d_sun"></label></div>
           </div><div class="msg"></div></div>
         <div class="f"><div class="q" data-i18n="hours"></div>
           <div class="hours">
@@ -318,8 +319,8 @@ const I18N = {
   name:"Full name",name_ph:"Your full name",phone:"Phone number",email:"Email (optional)",city:"City where you live",city_ph:"City",zip:"ZIP code (optional)",
   experience:"How much cleaning experience do you have?",exp_none:"No experience",exp_lt1:"Less than 1 year",exp_1to3:"1 to 3 years",exp_gt3:"More than 3 years",
   has_car:"Do you have a car?",supplies:"Do you have your own cleaning supplies?",yes:"Yes",no:"No",
-  time_in_us:"How long have you been in the US?",tm_lt6m:"Less than 6 months",tm_6to12m:"6 months to 1 year",tm_1to3y:"1 to 3 years",tm_gt3y:"More than 3 years",
-  days:"Which days can you work?",d_mon:"Mon",d_tue:"Tue",d_wed:"Wed",d_thu:"Thu",d_fri:"Fri",d_sat:"Sat",d_sun:"Sun",
+  license:"Do you have a driver's license?",
+  days:"Which days can you work?",d_sun:"Sun",d_mon:"Mon",d_tue:"Tue",d_wed:"Wed",d_thu:"Thu",d_fri:"Fri",d_sat:"Sat",
   hours:"What hours are you available?",from:"From",to:"To",shift:"Our shift is 8:30am to 4pm.",e_days:"Pick at least one day",e_hours:"End time must be after start time",questions:"Questions?",
   document:"Do you have an SSN (Social Security) or ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Neither",instagram:"Instagram (optional)",ig_ph:"yourprofile",facebook:"Facebook (optional)",fb_ph:"Profile link or name",
   next:"Continue",back:"Back",send:"Send application",sending:"Sending…",privacy:"Your information is only used for this hiring process.",
@@ -331,8 +332,8 @@ const I18N = {
   name:"Nome completo",name_ph:"Seu nome completo",phone:"Número do WhatsApp",email:"E-mail (opcional)",city:"Cidade onde mora",city_ph:"Cidade",zip:"ZIP code (opcional)",
   experience:"Quanto tempo de experiência com limpeza você tem?",exp_none:"Nenhuma",exp_lt1:"Menos de 1 ano",exp_1to3:"1 a 3 anos",exp_gt3:"Mais de 3 anos",
   has_car:"Você tem carro?",supplies:"Você tem material de limpeza próprio?",yes:"Sim",no:"Não",
-  time_in_us:"Há quanto tempo você está nos EUA?",tm_lt6m:"Menos de 6 meses",tm_6to12m:"De 6 meses a 1 ano",tm_1to3y:"1 a 3 anos",tm_gt3y:"Mais de 3 anos",
-  days:"Quais dias você pode trabalhar?",d_mon:"Seg",d_tue:"Ter",d_wed:"Qua",d_thu:"Qui",d_fri:"Sex",d_sat:"Sáb",d_sun:"Dom",
+  license:"Você tem habilitação (carteira de motorista)?",
+  days:"Quais dias você pode trabalhar?",d_sun:"Dom",d_mon:"Seg",d_tue:"Ter",d_wed:"Qua",d_thu:"Qui",d_fri:"Sex",d_sat:"Sáb",
   hours:"Qual horário você tem disponível?",from:"De",to:"Até",shift:"Nosso turno é das 8:30am às 4pm.",e_days:"Marque pelo menos um dia",e_hours:"O horário final precisa ser depois do inicial",questions:"Dúvidas?",
   document:"Você possui SSN (Social Security) ou ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Nenhum",instagram:"Instagram (opcional)",ig_ph:"seuperfil",facebook:"Facebook (opcional)",fb_ph:"Link ou nome do perfil",
   next:"Continuar",back:"Voltar",send:"Enviar candidatura",sending:"Enviando…",privacy:"Suas informações são usadas só para este processo seletivo.",
@@ -344,8 +345,8 @@ const I18N = {
   name:"Nombre completo",name_ph:"Tu nombre completo",phone:"Número de WhatsApp",email:"Correo electrónico (opcional)",city:"Ciudad donde vives",city_ph:"Ciudad",zip:"Código ZIP (opcional)",
   experience:"¿Cuánta experiencia en limpieza tienes?",exp_none:"Ninguna",exp_lt1:"Menos de 1 año",exp_1to3:"1 a 3 años",exp_gt3:"Más de 3 años",
   has_car:"¿Tienes carro?",supplies:"¿Tienes tus propios materiales de limpieza?",yes:"Sí",no:"No",
-  time_in_us:"¿Cuánto tiempo llevas en Estados Unidos?",tm_lt6m:"Menos de 6 meses",tm_6to12m:"De 6 meses a 1 año",tm_1to3y:"1 a 3 años",tm_gt3y:"Más de 3 años",
-  days:"¿Qué días puedes trabajar?",d_mon:"Lun",d_tue:"Mar",d_wed:"Mié",d_thu:"Jue",d_fri:"Vie",d_sat:"Sáb",d_sun:"Dom",
+  license:"¿Tienes licencia de conducir?",
+  days:"¿Qué días puedes trabajar?",d_sun:"Dom",d_mon:"Lun",d_tue:"Mar",d_wed:"Mié",d_thu:"Jue",d_fri:"Vie",d_sat:"Sáb",
   hours:"¿En qué horario estás disponible?",from:"De",to:"Hasta",shift:"Nuestro turno es de 8:30am a 4pm.",e_days:"Marca al menos un día",e_hours:"La hora final debe ser después de la inicial",questions:"¿Dudas?",
   document:"¿Tienes SSN (Seguro Social) o ITIN?",doc_ssn:"SSN",doc_itin:"ITIN",doc_none:"Ninguno",instagram:"Instagram (opcional)",ig_ph:"tuperfil",facebook:"Facebook (opcional)",fb_ph:"Enlace o nombre del perfil",
   next:"Continuar",back:"Atrás",send:"Enviar solicitud",sending:"Enviando…",privacy:"Tu información solo se usa para este proceso de selección.",
@@ -408,7 +409,7 @@ function validate(i){
     else if (inp.name === 'zip' && v && !/^\d{5}$/.test(v)) msg = t('e_zip');
     setErr(inp, msg); if (msg && !first) first = inp;
   });
-  step.querySelectorAll('.opts, .days').forEach(g => {
+  step.querySelectorAll('.f:not([hidden]) .opts, .days').forEach(g => {
     const msg = g.querySelector('input:checked') ? '' : t(g.classList.contains('days') ? 'e_days' : 'e_opt');
     setErr(g, msg); if (msg && !first) first = g;
   });
@@ -425,7 +426,17 @@ form.addEventListener('input', e => {
   const f = e.target.closest('.f'); if (f) { const bad = f.querySelector('.bad'); if (bad) setErr(bad, ''); }
   try { const o = Object.fromEntries(new FormData(form)); o.days = [...form.querySelectorAll('input[name=days]:checked')].map(i => i.value); sessionStorage.setItem(KEY, JSON.stringify(o)); } catch {}
 });
-form.addEventListener('change', e => { if (e.target.type === 'radio' || e.target.type === 'checkbox') form.dispatchEvent(new Event('input')); });
+const fLicense = $('#fLicense');
+function toggleLicense(){
+  const yes = form.querySelector('input[name=has_car][value=yes]').checked;
+  if (fLicense.hidden === !yes) return;
+  fLicense.hidden = !yes;
+  if (yes) fLicense.classList.add('reveal'); else form.querySelectorAll('input[name=license]').forEach(i => i.checked = false);
+}
+form.addEventListener('change', e => {
+  if (e.target.name === 'has_car') toggleLicense();
+  if (e.target.type === 'radio' || e.target.type === 'checkbox') form.dispatchEvent(new Event('input'));
+});
 
 $('#back').onclick = () => show(cur - 1);
 $('#next').onclick = () => { if (!validate(cur)) return; cur < steps.length - 1 ? show(cur + 1) : submit(); };
@@ -485,6 +496,7 @@ try {
     const el = form.elements[k]; if (el) el.value = v;
   }
 } catch {}
+toggleLicense();
 show(0);
 </script>
 </body>

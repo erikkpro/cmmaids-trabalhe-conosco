@@ -44,7 +44,8 @@ PLATAFORMA_URL = os.environ.get("PLATAFORMA_URL", "https://wuvdbripwlkjpopwlzbm.
 PLATAFORMA_TOKEN = os.environ.get("PLATAFORMA_TOKEN", "")
 
 SLUGS = {"pt": "trabalhe-conosco", "en": "work-with-us", "es": "trabaja-con-nosotros"}
-DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
+WEEKDAYS = ["mon", "tue", "wed", "thu", "fri"]
 SHIFT = (8 * 60 + 30, 16 * 60)  # turno 8:30–16:00
 
 
@@ -58,7 +59,7 @@ def availability_of(days: list[str], hours_from: str, hours_to: str) -> str:
     f, t = _min(hours_from), _min(hours_to)
     if t <= f or not days or t <= SHIFT[0] or f >= SHIFT[1]:
         return "no"
-    if all(d in days for d in DAYS[:5]) and f <= SHIFT[0] and t >= SHIFT[1]:
+    if all(d in days for d in WEEKDAYS) and f <= SHIFT[0] and t >= SHIFT[1]:
         return "full"
     return "partial"
 
@@ -66,10 +67,10 @@ def availability_of(days: list[str], hours_from: str, hours_to: str) -> str:
 POINTS = {
     "experience": {"none": 0, "lt1": 1, "1to3": 2, "gt3": 3},
     "has_car": {"yes": 3, "no": 0},
+    "license": {"yes": 1, "no": 0, "na": 0},  # só pesa pra quem tem carro
     "availability": {"full": 3, "partial": 1, "no": 0},
     "document": {"ssn": 3, "itin": 3, "none": 0},
     "supplies": {"yes": 1, "no": 0},
-    "time_in_us": {"lt6m": 0, "6to12m": 1, "1to3y": 2, "gt3y": 3},
 }
 MAX_SCORE = sum(max(v.values()) for v in POINTS.values())  # 16
 
@@ -105,12 +106,12 @@ def init_db():
             lang TEXT, name TEXT, phone TEXT, email TEXT, instagram TEXT, facebook TEXT,
             city TEXT, zip TEXT, experience TEXT, has_car TEXT, availability TEXT,
             days TEXT, hours_from TEXT, hours_to TEXT,
-            document TEXT, supplies TEXT, time_in_us TEXT,
+            document TEXT, supplies TEXT, license TEXT,
             score INTEGER, bucket TEXT, event_id TEXT,
             ip TEXT, user_agent TEXT, fbp TEXT, fbc TEXT, query TEXT)"""
         )
         have = {r[1] for r in con.execute("PRAGMA table_info(applications)")}
-        for col in ("days", "hours_from", "hours_to"):
+        for col in ("days", "hours_from", "hours_to", "license"):
             if col not in have:
                 con.execute(f"ALTER TABLE applications ADD COLUMN {col} TEXT")
 
@@ -176,12 +177,12 @@ class Application(BaseModel):
     zip: str = ""
     experience: str
     has_car: str
+    license: str = "na"
     days: list[str]
     hours_from: str
     hours_to: str
     document: str
     supplies: str
-    time_in_us: str
     website: str = ""  # honeypot: humano deixa vazio
     fbp: str = ""
     fbc: str = ""
@@ -254,7 +255,7 @@ class Application(BaseModel):
             raise ValueError("time")
         return v
 
-    @field_validator("experience", "has_car", "document", "supplies", "time_in_us")
+    @field_validator("experience", "has_car", "license", "document", "supplies")
     @classmethod
     def _enum(cls, v, info):
         if v not in POINTS[info.field_name]:
@@ -286,6 +287,8 @@ def apply(a: Application, request: Request, bg: BackgroundTasks):
     if rate_limited(ip):
         raise HTTPException(429, "too many requests")
     data = a.model_dump(exclude={"website"})
+    if data["has_car"] != "yes":
+        data["license"] = "na"
     data["availability"] = availability_of(data["days"], data["hours_from"], data["hours_to"])
     data["days"] = ",".join(data["days"])
     data["score"], data["bucket"] = score_and_bucket(data)
@@ -307,11 +310,11 @@ def apply(a: Application, request: Request, bg: BackgroundTasks):
 LABELS = {
     "experience": {"none": "Nenhuma", "lt1": "Menos de 1 ano", "1to3": "1 a 3 anos", "gt3": "Mais de 3 anos"},
     "has_car": {"yes": "Sim", "no": "Não"},
+    "license": {"yes": "Sim", "no": "Não", "na": "—"},
     "availability": {"full": "Total (8:30–4pm)", "partial": "Parcial", "no": "Não"},
-    "days": {"mon": "Seg", "tue": "Ter", "wed": "Qua", "thu": "Qui", "fri": "Sex", "sat": "Sáb", "sun": "Dom"},
+    "days": {"sun": "Dom", "mon": "Seg", "tue": "Ter", "wed": "Qua", "thu": "Qui", "fri": "Sex", "sat": "Sáb"},
     "document": {"ssn": "SSN", "itin": "ITIN", "none": "Nenhum"},
     "supplies": {"yes": "Sim", "no": "Não"},
-    "time_in_us": {"lt6m": "Menos de 6 meses", "6to12m": "6 meses a 1 ano", "1to3y": "1 a 3 anos", "gt3y": "Mais de 3 anos"},
     "bucket": {"qualificado": "✅ Qualificada", "potencial": "🟡 Potencial", "nao_qualificado": "🔴 Não qualificada"},
     "lang": {"pt": "Português", "en": "English", "es": "Español"},
 }
@@ -352,11 +355,10 @@ def notify_email(d: dict):
         ("E-mail", esc(d["email"])),
         ("Cidade / ZIP", esc(f'{d["city"]} {d["zip"]}'.strip())),
         ("Experiência", label("experience", d["experience"])),
-        ("Tem carro", label("has_car", d["has_car"])),
+        ("Tem carro", label("has_car", d["has_car"]) + (" · habilitação: " + label("license", d["license"]) if d["has_car"] == "yes" else "")),
         ("Disponível 8:30–4pm", f'{label("availability", d["availability"])} — {esc(fmt_hours(d))}'),
         ("SSN / ITIN", label("document", d["document"])),
         ("Material de limpeza", label("supplies", d["supplies"])),
-        ("Tempo nos EUA", label("time_in_us", d["time_in_us"])),
         ("Instagram", f'<a href="https://instagram.com/{urllib.request.quote(ig)}">@{esc(ig)}</a>' if ig else "—"),
         ("Facebook", f'<a href="{esc(fb_href)}">{esc(fb)}</a>' if fb else "—"),
         ("Idioma do formulário", label("lang", d["lang"])),
@@ -399,7 +401,7 @@ def enviar_plataforma(d: dict):
         "city": d["city"], "zip": d["zip"], "days": d["days"],
         "hours_from": d["hours_from"], "hours_to": d["hours_to"], "availability": d["availability"],
         "has_car": d["has_car"], "experience_key": d["experience"], "document": d["document"],
-        "supplies": d["supplies"], "time_in_us": d["time_in_us"],
+        "supplies": d["supplies"], "license": d["license"],  # a pergunta "tempo nos EUA" saiu do formulário em 23/09
         "score": d["score"], "bucket": d["bucket"], "lang": d["lang"], "event_id": d["event_id"],
         "status": "nova",
     }
@@ -461,11 +463,11 @@ def admin():
 def export_csv():
     rows = all_rows()
     buf = io.StringIO()
-    fields = ["id", "created_at", "bucket", "score", "name", "phone", "email", "city", "zip", "experience", "has_car",
-              "availability", "days", "hours_from", "hours_to", "document", "supplies", "time_in_us", "instagram", "facebook", "lang", "query"]
+    fields = ["id", "created_at", "bucket", "score", "name", "phone", "email", "city", "zip", "experience", "has_car", "license",
+              "availability", "days", "hours_from", "hours_to", "document", "supplies", "instagram", "facebook", "lang", "query"]
     w = csv.writer(buf)
     w.writerow(fields)
-    safe = lambda v: "'" + v if isinstance(v, str) and v[:1] in "=+-@\t\r" else v
+    safe = lambda v: "'" + v if isinstance(v, str) and v[:1] and v[:1] in "=+-@\t\r" else v
     for r in rows:
         w.writerow([safe(label(f, r[f]) if f in LABELS else ampm(r[f]) if f.startswith("hours_") and r[f] else r[f]) for f in fields])
     return Response("﻿" + buf.getvalue(), media_type="text/csv; charset=utf-8",
