@@ -2,13 +2,16 @@
 
 Formulário de candidatura para helpers (EN/PT/ES) com pontuação, banco SQLite, e-mail via Resend e Meta Pixel (Purchase).
 
-Rotas: `/work-with-us` · `/trabalhe-conosco` · `/trabaja-con-nosotros` · `/admin` (Basic Auth) · `/admin/export.csv`
+Rotas: `/work-with-us` · `/trabalhe-conosco` · `/trabaja-con-nosotros`
+
+As candidaturas são consultadas na plataforma (operacionalcm.com), que recebe cada uma pela edge function `cr-candidata`. O SQLite local é o registro de origem.
 
 ## Variáveis de ambiente
 
 | Var | O quê |
 |---|---|
-| `ADMIN_USER` / `ADMIN_PASS` | login do `/admin` (sem `ADMIN_PASS` o admin fica fechado) |
+| `PLATAFORMA_URL` / `PLATAFORMA_TOKEN` | espelhamento das candidatas na plataforma |
+| `PLATAFORMA_PAINEL` | link do painel no rodapé do e-mail (default https://operacionalcm.com) |
 | `RESEND_API_KEY` | chave da Resend |
 | `NOTIFY_TO` | e-mails que recebem cada candidatura (separados por vírgula) |
 | `NOTIFY_FROM` | remetente (domínio verificado na Resend) |
@@ -22,5 +25,5 @@ Rotas: `/work-with-us` · `/trabalhe-conosco` · `/trabaja-con-nosotros` · `/ad
 
 ```
 pip install -r requirements.txt
-DB_PATH=./dev.db ADMIN_PASS=x uvicorn app:app --reload
+DB_PATH=./dev.db uvicorn app:app --reload
 ```

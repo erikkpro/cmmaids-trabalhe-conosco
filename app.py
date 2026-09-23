@@ -1,7 +1,5 @@
 """CM Maids — formulário "Trabalhe conosco" (EN/PT/ES) com pontuação, SQLite, e-mail (Resend) e Meta Pixel/CAPI."""
-import csv
 import hashlib
-import io
 import json
 import os
 import re
@@ -13,9 +11,8 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
@@ -32,8 +29,6 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 NOTIFY_TO = [e.strip() for e in os.environ.get("NOTIFY_TO", "").split(",") if e.strip()]
 NOTIFY_FROM = os.environ.get("NOTIFY_FROM", "CM Maids <vagas@cmdigitalbr.com>")
 REPLY_TO = os.environ.get("REPLY_TO", "contact@cmmaids.com")
-ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
-ADMIN_PASS = os.environ.get("ADMIN_PASS", "")
 META_PIXEL_ID = os.environ.get("META_PIXEL_ID", "1656588805885650")
 META_CAPI_TOKEN = os.environ.get("META_CAPI_TOKEN", "")  # opcional: Conversions API (server-side Purchase)
 PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://cmmaids.com").rstrip("/")
@@ -42,6 +37,7 @@ PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://cmmaids.com").rstrip("/")
 # candidata — e não pela chave-mestra do banco, que abre os outros apps do Erik.
 PLATAFORMA_URL = os.environ.get("PLATAFORMA_URL", "https://wuvdbripwlkjpopwlzbm.supabase.co/functions/v1/cr-candidata")
 PLATAFORMA_TOKEN = os.environ.get("PLATAFORMA_TOKEN", "")
+PLATAFORMA_PAINEL = os.environ.get("PLATAFORMA_PAINEL", "https://operacionalcm.com")
 
 SLUGS = {"pt": "trabalhe-conosco", "en": "work-with-us", "es": "trabaja-con-nosotros"}
 DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
@@ -374,7 +370,7 @@ def notify_email(d: dict):
     <p style="margin:0 0 14px"><span style="background:{color};color:#fff;padding:4px 10px;border-radius:999px;font-weight:700">{label("bucket", d["bucket"])}</span>
     &nbsp; Pontuação: <b>{d["score"]}/{MAX_SCORE}</b></p>
     <table style="border-collapse:collapse;width:100%;font-size:14px">{table}</table>
-    <p style="margin-top:16px;font-size:13px;color:#6b7280">Todas as candidatas: <a href="{PUBLIC_URL}/admin">{PUBLIC_URL}/admin</a></p></div>"""
+    <p style="margin-top:16px;font-size:13px;color:#6b7280">Todas as candidatas na plataforma: <a href="{PLATAFORMA_PAINEL}">{PLATAFORMA_PAINEL}</a></p></div>"""
     try:
         _post_json(
             "https://api.resend.com/emails",
@@ -432,50 +428,3 @@ def send_capi(d: dict):
         _post_json(f"https://graph.facebook.com/v21.0/{META_PIXEL_ID}/events?access_token={META_CAPI_TOKEN}", payload, {})
     except Exception as e:
         print("capi error:", e, flush=True)
-
-
-# ---- admin ----
-security = HTTPBasic()
-
-
-def admin_auth(creds: HTTPBasicCredentials = Depends(security)):
-    ok = ADMIN_PASS and secrets.compare_digest(creds.username, ADMIN_USER) and secrets.compare_digest(creds.password, ADMIN_PASS)
-    if not ok:
-        raise HTTPException(401, "Unauthorized", headers={"WWW-Authenticate": "Basic"})
-
-
-def all_rows() -> list[dict]:
-    with db() as con:
-        return [dict(r) for r in con.execute("SELECT * FROM applications ORDER BY id DESC")]
-
-
-@app.get("/admin", dependencies=[Depends(admin_auth)])
-def admin():
-    rows = all_rows()
-    for r in rows:
-        r.pop("ip", None); r.pop("user_agent", None); r.pop("fbp", None); r.pop("fbc", None)
-    data = json.dumps(rows).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")  # nada de HTML dentro do <script>
-    html = (BASE / "admin.html").read_text(encoding="utf-8").replace("{{DATA}}", data).replace("{{MAX}}", str(MAX_SCORE))
-    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
-
-
-@app.get("/admin/export.csv", dependencies=[Depends(admin_auth)])
-def export_csv():
-    rows = all_rows()
-    buf = io.StringIO()
-    fields = ["id", "created_at", "bucket", "score", "name", "phone", "email", "city", "zip", "experience", "has_car", "license",
-              "availability", "days", "hours_from", "hours_to", "document", "supplies", "instagram", "facebook", "lang", "query"]
-    w = csv.writer(buf)
-    w.writerow(fields)
-    safe = lambda v: "'" + v if isinstance(v, str) and v[:1] and v[:1] in "=+-@\t\r" else v
-    for r in rows:
-        w.writerow([safe(label(f, r[f]) if f in LABELS else ampm(r[f]) if f.startswith("hours_") and r[f] else r[f]) for f in fields])
-    return Response("﻿" + buf.getvalue(), media_type="text/csv; charset=utf-8",
-                    headers={"Content-Disposition": "attachment; filename=candidatas-cmmaids.csv"})
-
-
-@app.delete("/admin/api/applications/{app_id}", dependencies=[Depends(admin_auth)])
-def delete_application(app_id: int):
-    with _db_lock, db() as con:
-        con.execute("DELETE FROM applications WHERE id = ?", (app_id,))
-    return {"ok": True}
