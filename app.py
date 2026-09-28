@@ -145,11 +145,10 @@ async def limit_body(request: Request, call_next):
 
 
 @app.get("/")
-def root(request: Request):
-    accept = request.headers.get("accept-language", "").lower()
-    lang = "pt" if accept.startswith("pt") else "es" if accept.startswith("es") else "en"
-    q = request.url.query
-    return RedirectResponse(f"/{SLUGS[lang]}" + (f"?{q}" if q else ""), status_code=302)
+def root():
+    """Site institucional. Os 3 formulários continuam nos slugs de sempre (anúncio aponta pra eles)."""
+    html = (BASE / "site.html").read_text(encoding="utf-8").replace("{{PUBLIC_URL}}", PUBLIC_URL)
+    return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
 
 for _lang, _slug in SLUGS.items():
