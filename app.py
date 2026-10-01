@@ -1,5 +1,6 @@
 """CM Maids — formulário "Trabalhe conosco" (EN/PT/ES) com pontuação, SQLite, e-mail (Resend) e Meta Pixel/CAPI."""
 import hashlib
+import html
 import json
 import os
 import re
@@ -7,6 +8,7 @@ import secrets
 import sqlite3
 import threading
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -173,6 +175,168 @@ def privacy():
 def terms():
     return render_page("Terms | CM Maids", "Terms of the CM Maids text message program (billing notifications).",
                        (BASE / "legal" / "terms.html").read_text(encoding="utf-8"))
+
+
+# ---------- página pública do invoice (leva 7): o [link] do SMS de lembrete ----------
+# Os dados vêm da edge cr-invoice-publico (só o que o PDF imprime). Código ruim ou desconhecido dá o
+# mesmo 404 do site, sem dizer se o invoice existe. noindex e no-store: não entra no Google nem em cache.
+INVOICE_API = os.environ.get("INVOICE_API", "https://wuvdbripwlkjpopwlzbm.supabase.co/functions/v1/cr-invoice-publico")
+_SEM_CACHE = {"X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store"}
+
+INVOICE_CSS = """
+.iv-wrap{width:min(860px,100% - 32px);margin:28px auto 0}
+.iv-acoes{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.iv-selo{font:700 13px Inter,sans-serif;padding:7px 14px;border-radius:999px;letter-spacing:.02em}
+.iv-selo.pago{background:#e3f4e9;color:#15803d}
+.iv-selo.aberto{background:#fde8ee;color:#b42345}
+.iv-sheet{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,10,31,.12);color:#374151;font-family:Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.iv-band{background:#0B1F52;border-bottom:6px solid #E8B4C4;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 28px}
+.iv-band img{width:76px;height:76px;border-radius:50%;box-shadow:0 0 0 2px rgba(232,180,196,.35)}
+.iv-ttl{text-align:right;color:#fff}
+.iv-ttl b{display:block;font-size:28px;letter-spacing:.01em;line-height:1}
+.iv-ttl span{display:block;color:#E8B4C4;font-size:13px;margin-top:8px}
+.iv-body{padding:26px 28px 22px}
+.iv-meta{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:18px 22px}
+.iv-lab{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.04em}
+.iv-val{font-size:14px;margin-top:4px;white-space:pre-line;overflow-wrap:anywhere}
+.iv-gap{margin-top:14px}
+.iv-cliente{font-size:17px;font-weight:700;color:#0B1F52;margin-top:4px;overflow-wrap:anywhere}
+.iv-big{font-size:19px;font-weight:700;color:#0B1F52;margin-top:4px}
+table.iv{width:100%;border-collapse:collapse;margin-top:24px}
+table.iv th{background:#0B1F52;color:#fff;font-size:11px;letter-spacing:.04em;padding:9px 10px;text-align:left}
+table.iv td{padding:10px;border-bottom:1px solid #E6E1E8;vertical-align:top;font-size:14px}
+table.iv tr:nth-child(even) td{background:#F6F2F5}
+table.iv .r{text-align:right;white-space:nowrap}
+table.iv .c{text-align:center}
+table.iv td.r:last-child{font-weight:700;color:#0B1F52}
+.iv-nm{font-weight:700;color:#0B1F52}
+.iv-ds{font-size:12.5px;color:#6B7280;margin-top:3px;overflow-wrap:anywhere}
+.iv-bonus{color:#0016bd;font-weight:700;font-size:12px;margin-left:5px}
+.iv-tot{display:flex;justify-content:flex-end;margin-top:18px}
+.iv-totbox{background:#0B1F52;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:12px 16px;min-width:min(320px,100%)}
+.iv-totbox b:last-child{font-size:19px}
+.iv-pay{margin-top:22px}
+.iv-note{font-size:12.5px;color:#6B7280;margin-top:8px;white-space:pre-line}
+.iv-online{margin-top:12px}
+.iv-foot{border-top:1px solid #E6E1E8;margin-top:24px;padding-top:10px;font-size:12px;color:#6B7280;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px}
+.iv-foot b{color:#0B1F52}
+.iv-ajuda{color:var(--muted);font-size:13.5px;text-align:center;margin-top:16px}
+@media(max-width:640px){
+  .iv-band{padding:18px 18px}.iv-band img{width:60px;height:60px}.iv-ttl b{font-size:23px}
+  .iv-body{padding:20px 18px 18px}
+  .iv-meta{grid-template-columns:1fr 1fr}.iv-meta .c1{grid-column:1/-1}
+  table.iv .q,table.iv .p{display:none}
+}
+@media print{
+  @page{size:letter;margin:.45in}
+  header.top,footer.foot,.iv-acoes,.iv-ajuda{display:none !important}
+  body{background:#fff}
+  .iv-wrap{width:100%;margin:0}
+  .iv-sheet{box-shadow:none;border-radius:0}
+}
+"""
+
+
+def _dolar(v) -> str:
+    try:
+        return f"${float(v):,.2f}"
+    except (TypeError, ValueError):
+        return "$0.00"
+
+
+def _html_invoice(d: dict) -> str:
+    e = lambda s: html.escape(str(s or ""), quote=True)
+    emp = d.get("empresa") or {}
+    pago = bool(d.get("pago"))
+    linhas = "".join(
+        f"""<tr><td><span class="iv-nm">{e(it.get('nome'))}</span>{'<span class="iv-bonus">(Bonus)</span>' if it.get('bonus') else ''}"""
+        f"""{f'<div class="iv-ds">{e(it.get("descricao"))}</div>' if it.get('descricao') else ''}</td>"""
+        f"""<td class="c q">{e(it.get('qtd'))}</td><td class="r p">{_dolar(it.get('preco'))}</td><td class="r">{_dolar(it.get('valor'))}</td></tr>"""
+        for it in (d.get("itens") or [])
+    )
+    link = str(d.get("link_pagamento") or "").strip()
+    online = (f'<div class="iv-online"><a class="btn btn-navy" href="{e(link)}" target="_blank" rel="noopener nofollow">Pay online</a></div>'
+              if re.match(r"^https?://", link) else "")
+    email = f'<div class="iv-val">{e(d.get("email"))}</div>' if d.get("email") else ""
+    return f"""
+<main class="iv-wrap">
+  <div class="iv-acoes">
+    <span class="iv-selo {'pago' if pago else 'aberto'}">{'Paid · thank you!' if pago else 'Unpaid'}</span>
+    <button class="btn btn-rose" type="button" onclick="window.print()">Download PDF</button>
+  </div>
+  <div class="iv-sheet">
+    <div class="iv-band">
+      <img src="/static/logo-redonda.png" alt="CM Maids" width="76" height="76">
+      <div class="iv-ttl"><b>INVOICE</b><span>No. {e(d.get('numero'))}</span></div>
+    </div>
+    <div class="iv-body">
+      <div class="iv-meta">
+        <div class="c1">
+          <div class="iv-lab">Billed to</div>
+          <div class="iv-cliente">{e(d.get('cliente'))}</div>
+          <div class="iv-val">{e(d.get('telefone'))}</div>{email}
+          <div class="iv-lab iv-gap">Service period</div>
+          <div class="iv-val">{e(d.get('periodo'))}</div>
+        </div>
+        <div>
+          <div class="iv-lab">Issued</div><div class="iv-val">{e(d.get('emitido'))}</div>
+          <div class="iv-lab iv-gap">Terms</div><div class="iv-val">{e(d.get('termos'))}</div>
+        </div>
+        <div>
+          <div class="iv-lab">Due date</div><div class="iv-val">{e(d.get('vencimento'))}</div>
+          <div class="iv-lab iv-gap">{'Amount paid' if pago else 'Amount due'}</div><div class="iv-big">{_dolar(d.get('total'))}</div>
+        </div>
+      </div>
+      <table class="iv">
+        <thead><tr><th>SERVICE</th><th class="c q">QTY</th><th class="r p">RATE</th><th class="r">AMOUNT</th></tr></thead>
+        <tbody>{linhas}</tbody>
+      </table>
+      <div class="iv-tot"><div class="iv-totbox"><b>{'TOTAL PAID' if pago else 'TOTAL DUE'}</b><b>{_dolar(d.get('total'))}</b></div></div>
+      <div class="iv-pay">
+        <div class="iv-lab">Payment</div>
+        <div class="iv-val">{e(d.get('pagamento'))}</div>
+        {online}
+        <div class="iv-note">{e(d.get('observacao'))}</div>
+      </div>
+      <div class="iv-foot">
+        <span>{e(emp.get('email'))} &nbsp;|&nbsp; {e(emp.get('telefone'))} &nbsp;|&nbsp; {e(emp.get('site'))}</span>
+        <span>Thank you for your business.</span>
+        <span style="flex-basis:100%"><b>CM MAIDS</b> — {e(emp.get('frase'))}</span>
+      </div>
+    </div>
+  </div>
+  <p class="iv-ajuda">Questions about this invoice? Call or text <a href="tel:+19195254863">(919) 525-4863</a> or email <a href="mailto:contact@cmmaids.com">contact@cmmaids.com</a>.</p>
+</main>"""
+
+
+def pagina_404() -> HTMLResponse:
+    return render_page("Page not found | CM Maids", "This page does not exist.",
+                       '<main class="doc"><h1>Page not found</h1><p class="updated">This link is not valid or the page does not exist.</p>'
+                       '<p><a class="btn btn-rose" href="/">Go to the home page</a></p></main>',
+                       status=404, robots="noindex,nofollow", headers=_SEM_CACHE)
+
+
+@app.get("/invoice/{token}")
+def invoice_publico(token: str):
+    if not re.fullmatch(r"[0-9a-f]{32}", token):
+        return pagina_404()
+    try:
+        req = urllib.request.Request(f"{INVOICE_API}?t={token}", headers={"User-Agent": "cmmaids-site/1.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            d = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            return pagina_404()
+        d = None
+    except Exception:
+        d = None
+    if not d or not d.get("numero"):
+        return render_page("Invoice | CM Maids", "Invoice temporarily unavailable.",
+                           '<main class="doc"><h1>Invoice unavailable</h1><p class="updated">We could not load this invoice right now. '
+                           'Please try again in a few minutes, or call or text (919) 525-4863.</p></main>',
+                           status=503, robots="noindex,nofollow", headers=_SEM_CACHE)
+    return render_page(f"Invoice {html.escape(str(d['numero']))} | CM Maids", "Your CM Maids invoice.", _html_invoice(d),
+                       robots="noindex,nofollow", extra_css=INVOICE_CSS, headers=_SEM_CACHE)
 
 
 for _lang, _slug in SLUGS.items():
