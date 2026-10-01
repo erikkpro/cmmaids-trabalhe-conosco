@@ -153,6 +153,13 @@ def root():
     return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
 
+@app.get("/qrcode")
+def qrcode():
+    """O QR code impresso (camisetas) aponta pra cá. Pra mudar o destino, troque só o "/" abaixo: o QR não muda.
+    302 + no-store de propósito: um 301 ficaria gravado no celular de quem já escaneou."""
+    return RedirectResponse("/", status_code=302, headers={"Cache-Control": "no-store"})
+
+
 def render_page(title: str, desc: str, content: str, *, status: int = 200, robots: str = "index,follow",
                 extra_css: str = "", headers: dict | None = None) -> HTMLResponse:
     """Páginas simples (Privacy, Terms, invoice, 404) no molde page.html: mesmo topo e rodapé do site."""
