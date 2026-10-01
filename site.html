@@ -171,6 +171,10 @@ section.pad{padding:76px 0}
 .final p{color:rgba(255,255,255,.78);max-width:52ch;margin:0 auto 26px;position:relative}
 .final .cta-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;position:relative}
 @media(max-width:560px){.final{padding:40px 22px}.final .cta-row .btn{flex:1 1 100%}}
+/* aviso de SMS junto dos botões de agendar (exigido pelo registro A2P da Twilio) */
+.sms-ok{font-size:11.5px;line-height:1.45;color:var(--muted);margin-top:12px}
+.sms-ok a{color:inherit;font-weight:600}
+.final .sms-ok{color:rgba(255,255,255,.62);max-width:62ch;margin:18px auto 0;position:relative}
 
 /* rodapé */
 footer.foot{background:var(--navy-3);color:rgba(255,255,255,.72);margin-top:76px;padding:48px 0 130px}
@@ -246,6 +250,7 @@ footer.foot .tiny{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);pa
         <p class="fine">Starting estimate based on an average home. The final price can change with square footage, condition of the home, pets and any extras you ask for.</p>
       </div>
       <a class="btn btn-navy" id="book" href="#" target="_blank" rel="noopener">Book this price →</a>
+      <p class="sms-ok">By booking with CM Maids, you agree to receive appointment and billing text messages at the number you provide. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </div>
   </div>
 </section>
@@ -374,6 +379,7 @@ footer.foot .tiny{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);pa
         <a class="btn btn-rose" href="https://wa.me/19193691643?text=Hi%20CM%20Maids%2C%20I%27d%20like%20to%20book%20a%20cleaning." target="_blank" rel="noopener">Book on WhatsApp</a>
         <a class="btn btn-ghost" href="tel:+19195254863">Call (919) 525-4863</a>
       </div>
+      <p class="sms-ok">By booking with CM Maids, you agree to receive appointment and billing text messages at the number you provide. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </div>
   </div>
 </section>
@@ -395,6 +401,8 @@ footer.foot .tiny{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);pa
       <a href="#services">Services</a>
       <a href="#area">Service area</a>
       <a href="/work-with-us">Join our team</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms</a>
     </div>
     <div class="tiny">
       <span>© 2026 CM Maids LLC. All rights reserved.</span>

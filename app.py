@@ -151,6 +151,30 @@ def root():
     return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
 
+def render_page(title: str, desc: str, content: str, *, status: int = 200, robots: str = "index,follow",
+                extra_css: str = "", headers: dict | None = None) -> HTMLResponse:
+    """Páginas simples (Privacy, Terms, invoice, 404) no molde page.html: mesmo topo e rodapé do site."""
+    html = (
+        (BASE / "page.html").read_text(encoding="utf-8")
+        .replace("{{TITLE}}", title).replace("{{DESC}}", desc).replace("{{ROBOTS}}", robots)
+        .replace("{{EXTRA_CSS}}", extra_css).replace("{{CONTENT}}", content)
+    )
+    return HTMLResponse(html, status_code=status, headers={"Cache-Control": "no-cache", **(headers or {})})
+
+
+# Exigidas pelo registro de SMS (A2P 10DLC) da Twilio: precisam ficar públicas nestes endereços.
+@app.get("/privacy")
+def privacy():
+    return render_page("Privacy Policy | CM Maids", "How CM Maids collects and uses your information, including text messages.",
+                       (BASE / "legal" / "privacy.html").read_text(encoding="utf-8"))
+
+
+@app.get("/terms")
+def terms():
+    return render_page("Terms | CM Maids", "Terms of the CM Maids text message program (billing notifications).",
+                       (BASE / "legal" / "terms.html").read_text(encoding="utf-8"))
+
+
 for _lang, _slug in SLUGS.items():
     app.add_api_route(f"/{_slug}", (lambda lang: (lambda: render_form(lang)))(_lang), methods=["GET"])
 
