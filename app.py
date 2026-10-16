@@ -37,7 +37,7 @@ PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://cmmaids.com").rstrip("/")
 # Plataforma operacional (operacionalcm.com): a candidata cai na aba Candidatas pra a
 # Talita trabalhar. Entra por uma porta estreita — uma função que só sabe inserir
 # candidata — e não pela chave-mestra do banco, que abre os outros apps do Erik.
-PLATAFORMA_URL = os.environ.get("PLATAFORMA_URL", "https://wuvdbripwlkjpopwlzbm.supabase.co/functions/v1/cr-candidata")
+PLATAFORMA_URL = os.environ.get("PLATAFORMA_URL", "https://lwmpygckkxplyqhqzznp.supabase.co/functions/v1/cr-candidata")
 PLATAFORMA_TOKEN = os.environ.get("PLATAFORMA_TOKEN", "")
 PLATAFORMA_PAINEL = os.environ.get("PLATAFORMA_PAINEL", "https://operacionalcm.com")
 
@@ -194,7 +194,7 @@ def sms():
 # ---------- página pública do invoice (leva 7): o [link] do SMS de lembrete ----------
 # Os dados vêm da edge cr-invoice-publico (só o que o PDF imprime). Código ruim ou desconhecido dá o
 # mesmo 404 do site, sem dizer se o invoice existe. noindex e no-store: não entra no Google nem em cache.
-INVOICE_API = os.environ.get("INVOICE_API", "https://wuvdbripwlkjpopwlzbm.supabase.co/functions/v1/cr-invoice-publico")
+INVOICE_API = os.environ.get("INVOICE_API", "https://lwmpygckkxplyqhqzznp.supabase.co/functions/v1/cr-invoice-publico")
 _SEM_CACHE = {"X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store"}
 
 INVOICE_CSS = """
